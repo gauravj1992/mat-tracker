@@ -358,22 +358,18 @@ if "success_notification" not in st.session_state:
 
 # --- 3. LOGIN PAGE UI ---
 if not st.session_state.logged_in:
-    # Language Switcher on Login Page Top Right
-    col_lang_top, _ = st.columns([2, 8])
-    with col_lang_top:
-        st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], key="login_lang_sel")
-
     banner_container = st.container()
     with banner_container:
         st.markdown('<div class="orange-banner">', unsafe_allow_html=True)
-        col_logo, col_text = st.columns([1, 8])
+        # Placed logo, title, and language selector inside the orange banner columns
+        col_logo, col_text, col_lang = st.columns([1, 6, 2])
         with col_logo:
             if os.path.exists("logo.jpg"):
                 import base64
                 with open("logo.jpg", "rb") as img_file:
                     encoded_logo = base64.b64encode(img_file.read()).decode()
                 st.markdown(
-                    f'<img src="data:image/jpeg;base64,{encoded_logo}" width="180" style="border-radius: 6px; pointer-events: none;">',
+                    f'<img src="data:image/jpeg;base64,{encoded_logo}" width="160" style="border-radius: 6px; pointer-events: none;">',
                     unsafe_allow_html=True
                 )
             else:
@@ -384,6 +380,9 @@ if not st.session_state.logged_in:
                 unsafe_allow_html=True
             )
             st.markdown(f"<p>{t('login_prompt')}</p>", unsafe_allow_html=True)
+        with col_lang:
+            st.markdown("<p style='color: white !important; font-weight: bold; margin-bottom: 0;'>🌐 Language / भाषा</p>", unsafe_allow_html=True)
+            st.session_state.lang = st.selectbox("Language", ["English", "मराठी"], index=0 if st.session_state.lang == "English" else 1, label_visibility="collapsed", key="login_lang_sel")
         st.markdown('</div>', unsafe_allow_html=True)
     
     _, form_col, _ = st.columns([3.5, 3, 3.5])
@@ -496,8 +495,8 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
 
 # --- 5. MAIN PORTAL HEADER & SIDEBAR ---
 with st.sidebar:
-    # Language Selector in Sidebar
-    st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], key="sidebar_lang_sel")
+    # Language Selector in Sidebar after logging in
+    st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], index=0 if st.session_state.lang == "English" else 1, key="sidebar_lang_sel")
     st.markdown("---")
     
     st.markdown(f"### {t('nav_header')}")
