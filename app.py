@@ -15,6 +15,53 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* Force bold text inside primary buttons and standard buttons */
+    div.stButton > button[kind="primary"], div.stButton > button {
+        font-weight: 800 !important;
+        font-size: 16px !important;
+    }
+    div.stButton > button[kind="primary"] p, div.stButton > button p,
+    div.stButton > button[kind="primary"] span, div.stButton > button span {
+        font-weight: 800 !important;
+        font-size: 16px !important;
+        color: #1A252C !important;
+    }
+
+    /* CUSTOM BUTTON COLORS */
+    /* 1. Login Button (#9bff94) */
+    div.stFormSubmitButton > button {
+        background-color: #9bff94 !important;
+        border-color: #72e06b !important;
+    }
+    div.stFormSubmitButton > button p, div.stFormSubmitButton > button span {
+        color: #1A252C !important;
+    }
+
+    /* 2. Logout Button in Sidebar (#73ceff) */
+    [data-testid="stSidebar"] div.stButton > button {
+        background-color: #73ceff !important;
+        border-color: #4ab3e8 !important;
+    }
+    [data-testid="stSidebar"] div.stButton > button p, [data-testid="stSidebar"] div.stButton > button span {
+        color: #1A252C !important;
+    }
+
+    /* 3. Submit Case Record Button (#ff5b03) */
+    div.stExpander div.stButton > button[kind="primary"] {
+        background-color: #ff5b03 !important;
+        border-color: #e04f02 !important;
+    }
+
+    /* 4. OK Proceed to Portal Button in Popup (#6b83fa) */
+    div[data-testid="stButton"] button[kind="primary"] {
+        background-color: #6b83fa !important;
+        border-color: #4a66f8 !important;
+    }
+    div[data-testid="stButton"] button[kind="primary"] p, 
+    div[data-testid="stButton"] button[kind="primary"] span {
+        color: #1A252C !important;
+    }
+
     /* Global Warm White Background & Professional Font */
     .stApp {
         background-color: #FDFBF7;
@@ -73,6 +120,27 @@ st.markdown(
         border: 2px solid #2980B9 !important;
         border-radius: 8px !important;
         box-shadow: 0 2px 6px rgba(41, 128, 185, 0.2) !important;
+    }
+
+    /* Customized Colorful & Extra Bold Expander Button for Data Entry Form */
+    [data-testid="stExpander"] {
+        border-radius: 10px !important;
+        background-color: #c7d0ff !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    [data-testid="stExpander"] summary, 
+    [data-testid="stExpander"] summary span, 
+    [data-testid="stExpander"] summary p {
+        font-weight: 900 !important;
+        color: #1B2631 !important;
+        font-size: 20px !important;
+    }
+
+    /* Bold and Larger Styling for Dashboard Access Level Subtitle Text */
+    div[data-testid="stMarkdownContainer"] > p:has(strong) {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        color: #1A252C !important;
     }
 
     /* Completely Disable Image Zoom / Fullscreen Toolbar Overlay on st.image */
@@ -151,11 +219,18 @@ def init_db():
 
 init_db()
 
-# --- 2. AUTHENTICATION & SESSION STATE ---
+# --- 2. AUTHENTICATION & SESSION STATE WITH REFRESH PERSISTENCE ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.username = ""
     st.session_state.role = ""
+
+# Automatically restore session from query parameters if page is refreshed (`F5`)
+if not st.session_state.logged_in:
+    if "user" in st.query_params and "role" in st.query_params:
+        st.session_state.logged_in = True
+        st.session_state.username = st.query_params["user"]
+        st.session_state.role = st.query_params["role"]
 
 if "show_login_popup" not in st.session_state:
     st.session_state.show_login_popup = False
@@ -214,6 +289,8 @@ if not st.session_state.logged_in:
                 st.session_state.role = user_record[1]
                 st.session_state.show_login_popup = True
                 st.session_state.popup_start_time = time.time()  # Start 10s countdown timer
+                st.query_params["user"] = username_input
+                st.query_params["role"] = user_record[1]
                 st.rerun()
             else:
                 st.error("Invalid username or password. Please try again.")
@@ -223,7 +300,7 @@ if not st.session_state.logged_in:
         """
         <div style="text-align: center; margin-top: 60px; color: #555; font-size: 13px;">
             <hr style="border: 0; border-top: 1px solid #D3C5B4; margin-bottom: 15px; width: 50%; margin-left: auto; margin-right: auto;">
-            © 2026 PCIT Maharashtra Police. All rights reserved.<br>
+            © 2026 PCIT Maharashtra, All rights reserved.<br>
             <b>Designed and Developed by PCIT Maha Police</b>
         </div>
         """,
@@ -250,7 +327,7 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
         SELECT case_number, year_of_filing, 
                CASE WHEN bench = 'Others' THEN other_bench_details ELSE bench END as bench_name,
                applicant_name, next_hearing_date 
-        FROM cases WHERE next_hearing_date IS NOT NULL
+        FROM cases WHERE next_hearing_date IS NOT NULL AND next_hearing_date NOT LIKE '%Not available%' AND next_hearing_date != ''
     """
     df_pop = pd.read_sql_query(query_pop, conn_pop)
     conn_pop.close()
@@ -267,12 +344,11 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
                         "Case": f"{row['case_number']}/{row['year_of_filing']}",
                         "Bench": row["bench_name"],
                         "Applicant": row["applicant_name"],
-                        "Hearing Date": str(h_date)
+                        "Hearing Date": h_date.strftime("%d-%m-%Y")
                     })
             except:
                 pass
 
-    # Vertical & Horizontal Centering Spacers
     st.write("")
     st.write("")
     st.write("")
@@ -305,6 +381,8 @@ with st.sidebar:
     st.markdown("### ⚖️ MAT Portal Navigation")
     st.markdown(f"👤 **User:** {st.session_state.username}")
     st.markdown(f"🛡️ **Role:** {st.session_state.role}")
+    
+    # Instant Logout Button in Sidebar
     if st.button("Log Out", key="sidebar_logout_btn"):
         st.session_state.logged_in = False
         st.session_state.username = ""
@@ -312,11 +390,13 @@ with st.sidebar:
         st.session_state.show_login_popup = False
         if "popup_start_time" in st.session_state:
             del st.session_state.popup_start_time
+        st.query_params.clear()
         st.rerun()
+        
     st.markdown("---")
 
-st.title("MAT Case Management Portal - Maharashtra")
-st.markdown(f"Dashboard & Repository (Access Level: **{st.session_state.role}**)")
+st.title("MAT Case Management Portal - PCIT Maharashtra")
+st.markdown(f"**Dashboard & Repository (Access Level: {st.session_state.role})**")
 
 if st.session_state.success_notification:
     st.success(st.session_state.success_notification)
@@ -326,7 +406,7 @@ category_options = [
     "1. Recruitment and Selection process", "2. Recruitment Rules", "3. Timely Bound Promotions",
     "4. Assured progression scheme", "5. Promotion request", "6. HRA start request",
     "7. Issuence of Pension", "8. Increment stoppage", "9. Supernumerary post",
-    "10. FAke Certificate", "11. Demand for Old Pension", "13. Advanced Increment",
+    "10. Fake Certificate or Document", "11. Demand for Old Pension", "13. Advanced Increment",
     "14. Objection on Promotion Order", "15. Objection on Transfer order", "16. Other Objection",
     "17. Deemed date Promotion and related benifits", "18. Service Removal",
     "19. Prilimanary enquery, Departmental enquery and Suspension", "20. Hindi Language Concession",
@@ -363,35 +443,43 @@ selected_year = st.sidebar.selectbox("Filter by Year of Filing", all_filter_year
 selected_category = st.sidebar.selectbox("Filter by Category of Prayer", ["All Categories"] + category_options, key="filter_cat")
 selected_hearing_filter = st.sidebar.selectbox("Filter by Next Hearing Date", hearing_filter_options, key="filter_hearing")
 
-# --- 6. DATA ENTRY FORM (Clerk Only) ---
+# --- 6. DATA ENTRY FORM (Clerk Only) - NON-FORM CONTAINER FOR INSTANT REACTIVITY ---
 if st.session_state.role == "Clerk / Data Entry":
     with st.expander("➕ Open Data Entry Form", expanded=False):
-        with st.form(f"operator_entry_form_{st.session_state.form_reset_counter}"):
-            case_number = st.text_input("Case Number (e.g., OA 123)")
-            year_of_filing = st.selectbox("Year of Filing", year_options)
-            
-            bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
-            bench_selection = st.selectbox("Name of Bench / Bench", bench_choices)
-            custom_bench = st.text_input("Please specify Court Name (if Others)")
+        rc = st.session_state.form_reset_counter
+        
+        case_number = st.text_input("Case Number (e.g., OA 123)", key=f"de_case_no_{rc}")
+        year_of_filing = st.selectbox("Year of Filing", year_options, key=f"de_year_{rc}")
+        
+        bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
+        bench_selection = st.selectbox("Name of Bench / Bench", bench_choices, key=f"de_bench_{rc}")
+        custom_bench = st.text_input("Please specify Court Name (if Others)", key=f"de_custom_bench_{rc}")
 
-            applicant_name = st.text_input("Applicant Name")
-            subject_prayer = st.text_input("Subject/Prayer")
-            
-            cat_choices = ["Please select appropriate category"] + category_options
-            category_prayer = st.selectbox("Category of Prayer/Subject", cat_choices)
-            
-            case_brief = st.text_area("Case in Brief (Max ~150 words)")
-            affidavit_details = st.text_area("Affidavit Filing Details")
-            main_application_details = st.text_area("Details of Main Application")
-            case_status_date = st.text_input("Case Status Date (e.g., 2026-06-15 or 'Pending')")
-            
-            next_hearing_date_obj = st.date_input("Next Hearing Date", value=datetime.date.today())
-            uploaded_pdf = st.file_uploader("Upload Case Document (PDF)", type=["pdf"])
+        applicant_name = st.text_input("Applicant Name", key=f"de_applicant_{rc}")
+        subject_prayer = st.text_input("Subject/Prayer", key=f"de_subject_{rc}")
+        
+        cat_choices = ["Please select appropriate category"] + category_options
+        category_prayer = st.selectbox("Category of Prayer/Subject", cat_choices, key=f"de_cat_{rc}")
+        
+        case_brief = st.text_area("Case in Brief (Max ~150 words)", key=f"de_brief_{rc}")
+        affidavit_details = st.text_area("Affidavit Filing Details", key=f"de_affidavit_{rc}")
+        main_application_details = st.text_area("Details of Main Application", key=f"de_main_app_{rc}")
+        case_status_date = st.text_input("Case Status Date (e.g., 2026-06-15 or 'Pending')", key=f"de_status_{rc}")
+        
+        # --- DYNAMIC CHECKBOX & CALENDAR PICKER (Reruns instantly when toggled) ---
+        has_hearing = st.checkbox("Is next hearing date given?", value=True, key=f"de_has_hearing_{rc}")
+        next_hearing_date_obj = st.date_input("Next Hearing Date", value=datetime.date.today(), disabled=not has_hearing, key=f"de_hearing_date_{rc}")
+        
+        uploaded_pdf = st.file_uploader("Upload Case Document (PDF)", type=["pdf"], key=f"de_pdf_{rc}")
 
-            submitted = st.form_submit_button("Submit Case Record")
+        submitted = st.button("Submit Case Record", key=f"de_submit_btn_{rc}", type="primary")
 
         if submitted:
-            next_hearing_date_str = next_hearing_date_obj.strftime("%Y-%m-%d")
+            if has_hearing:
+                next_hearing_date_str = next_hearing_date_obj.strftime("%Y-%m-%d")
+            else:
+                next_hearing_date_str = "Date Not available"
+
             final_bench_val = "Others" if bench_selection == "Others" else bench_selection
             final_other_details = custom_bench.strip() if bench_selection == "Others" else None
 
@@ -458,15 +546,35 @@ df = pd.read_sql_query(query, conn, params=params)
 conn.close()
 
 if not df.empty:
+    def format_date_display(val):
+        if not val or str(val).strip() in ["None", "nan", "", "NaT", "Date Not available", "Not Available"]:
+            return "Date Not available"
+        try:
+            parsed_date = pd.to_datetime(val)
+            if pd.isna(parsed_date):
+                return "Date Not available"
+            return parsed_date.strftime("%d-%m-%Y")
+        except:
+            return "Date Not available"
+
+    df["Next Hearing Date"] = df["Next Hearing Date"].apply(format_date_display)
+
     if selected_hearing_filter != "All Time":
         today = datetime.date.today()
         days_map = {"Within 1 week": 7, "Within 2 weeks": 14, "Within 3 weeks": 21, "Within 4 weeks": 28}
         target_days = days_map.get(selected_hearing_filter, 7)
         target_date = today + datetime.timedelta(days=target_days)
             
-        df["temp_date"] = pd.to_datetime(df["Next Hearing Date"], errors="coerce").dt.date
-        df = df[(df["temp_date"] >= today) & (df["temp_date"] <= target_date)]
-        df = df.drop(columns=["temp_date"])
+        def is_within_range(val_str):
+            if val_str == "Date Not available":
+                return False
+            try:
+                dt = datetime.datetime.strptime(val_str, "%d-%m-%Y").date()
+                return today <= dt <= target_date
+            except:
+                return False
+
+        df = df[df["Next Hearing Date"].apply(is_within_range)]
 
     display_df = df.drop(columns=["Other Court Details", "PDF Path"], errors="ignore")
     
@@ -491,10 +599,12 @@ if not df.empty:
 
     def highlight_upcoming_hearing(row):
         try:
-            h_date = pd.to_datetime(row['Next Hearing Date']).date()
-            today = datetime.date.today()
-            if today <= h_date <= today + datetime.timedelta(days=7):
-                return ['background-color: #D8F3DC'] * len(row)
+            date_str = row['Next Hearing Date']
+            if date_str != "Date Not available":
+                h_date = datetime.datetime.strptime(date_str, "%d-%m-%Y").date()
+                today = datetime.date.today()
+                if today <= h_date <= today + datetime.timedelta(days=7):
+                    return ['background-color: #D8F3DC'] * len(row)
         except:
             pass
         return [''] * len(row)
