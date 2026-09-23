@@ -28,7 +28,6 @@ st.markdown(
     }
 
     /* CUSTOM BUTTON COLORS */
-    /* 1. Login Button (#9bff94) */
     div.stFormSubmitButton > button {
         background-color: #9bff94 !important;
         border-color: #72e06b !important;
@@ -37,7 +36,6 @@ st.markdown(
         color: #1A252C !important;
     }
 
-    /* 2. Logout Button in Sidebar (#73ceff) */
     [data-testid="stSidebar"] div.stButton > button {
         background-color: #73ceff !important;
         border-color: #4ab3e8 !important;
@@ -46,13 +44,11 @@ st.markdown(
         color: #1A252C !important;
     }
 
-    /* 3. Submit Case Record Button (#ff5b03) */
     div.stExpander div.stButton > button[kind="primary"] {
         background-color: #ff5b03 !important;
         border-color: #e04f02 !important;
     }
 
-    /* 4. OK Proceed to Portal Button in Popup (#6b83fa) */
     div[data-testid="stButton"] button[kind="primary"] {
         background-color: #6b83fa !important;
         border-color: #4a66f8 !important;
@@ -69,12 +65,10 @@ st.markdown(
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Sidebar Styling for Warm Aesthetic */
     [data-testid="stSidebar"] {
         background-color: #F5EFEB;
     }
 
-    /* Full-Width Layout Expansion */
     .block-container {
         padding-top: 2rem;
         padding-bottom: 2.5rem;
@@ -83,7 +77,6 @@ st.markdown(
         max-width: 100%;
     }
 
-    /* Professional Header Styles */
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: #1A252C;
@@ -93,7 +86,6 @@ st.markdown(
         color: #2C3E50;
     }
 
-    /* Professional Orange Banner for Login Header */
     .orange-banner {
         background-color: #E65100;
         padding: 25px;
@@ -113,8 +105,7 @@ st.markdown(
         margin: 0 !important;
     }
 
-    /* Attractive Modern Search Text Box Styling (Soft Sky Blue & Royal Blue) */
-    input[aria-label="🔍 Search Cases"] {
+    input[aria-label="🔍 Search Cases"], input[aria-label="🔍 केस शोधा"] {
         background-color: #EBF5FB !important;
         color: #2C3E50 !important;
         border: 2px solid #2980B9 !important;
@@ -122,7 +113,6 @@ st.markdown(
         box-shadow: 0 2px 6px rgba(41, 128, 185, 0.2) !important;
     }
 
-    /* Customized Colorful & Extra Bold Expander Button for Data Entry Form */
     [data-testid="stExpander"] {
         border-radius: 10px !important;
         background-color: #c7d0ff !important;
@@ -136,14 +126,12 @@ st.markdown(
         font-size: 20px !important;
     }
 
-    /* Bold and Larger Styling for Dashboard Access Level Subtitle Text */
     div[data-testid="stMarkdownContainer"] > p:has(strong) {
         font-size: 17px !important;
         font-weight: 700 !important;
         color: #1A252C !important;
     }
 
-    /* Completely Disable Image Zoom / Fullscreen Toolbar Overlay on st.image */
     [data-testid="stImage"] img {
         pointer-events: none !important;
     }
@@ -157,6 +145,132 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# --- BILINGUAL TRANSLATION DICTIONARY ---
+TRANSLATIONS = {
+    "English": {
+        "portal_title": "MAT Case Management Portal - PCIT Maharashtra",
+        "login_prompt": "Please sign in with your assigned credentials.",
+        "secure_signin": "🔐 Secure Sign In",
+        "username": "Username",
+        "password": "Password",
+        "signin_btn": "Sign In",
+        "invalid_login": "Invalid username or password. Please try again.",
+        "nav_header": "⚖️ MAT Portal Navigation",
+        "user_label": "User",
+        "role_label": "Role",
+        "logout_btn": "Log Out",
+        "dashboard_title": "Dashboard & Repository",
+        "access_level": "Access Level",
+        "supervisor_filters": "Supervisor Filters",
+        "filter_bench": "Filter by Bench",
+        "filter_year": "Filter by Year of Filing",
+        "filter_cat": "Filter by Category of Prayer",
+        "filter_hearing": "Filter by Next Hearing Date",
+        "all_benches": "All Benches",
+        "all_years": "All Years",
+        "all_categories": "All Categories",
+        "all_time": "All Time",
+        "open_entry": "➕ Open Data Entry Form",
+        "edit_record": "✏️ Edit Existing Case Record",
+        "case_no": "Case Number (e.g., OA 123)",
+        "year_filing": "Year of Filing",
+        "select_year": "Please select year",
+        "bench_name": "Name of Bench / Bench",
+        "select_court": "Please Select Court",
+        "others": "Others",
+        "custom_bench": "Please specify Court Name (if Others)",
+        "applicant": "Applicant Name",
+        "subject": "Subject/Prayer",
+        "category": "Category of Prayer/Subject",
+        "select_cat": "Please select appropriate category",
+        "brief": "Case in Brief (Max ~150 words)",
+        "affidavit": "Affidavit Filing Details",
+        "main_app": "Details of Main Application",
+        "status_date": "Case Status Date (e.g., 2026-06-15 or 'Pending')",
+        "has_hearing_chk": "Is next hearing date given?",
+        "hearing_date": "Next Hearing Date",
+        "upload_pdf": "Upload Case Document (PDF)",
+        "submit_btn": "Submit Case Record",
+        "update_btn": "Update Case Record",
+        "select_edit_case": "Select Case to Edit",
+        "live_repo": "Live Case Repository",
+        "repo_tip": "💡 *Tip: Cases with upcoming hearings **within 1 week** are highlighted in light green.*",
+        "search_box": "🔍 Search Cases",
+        "search_placeholder": "Type to search cases, applicants, subjects...",
+        "export_csv": "📥 Export to CSV",
+        "no_cases": "No cases found matching the selected filters.",
+        "no_edit_cases": "No cases available in the database to edit.",
+        "popup_title": "🔔 URGENT: Upcoming Hearings in the Next 7 Days",
+        "popup_warning": "⚠️ You have **{count} case(s)** scheduled for hearing within the next week!",
+        "popup_success": "✅ Good news! There are no hearings scheduled within the next 7 days.",
+        "popup_btn": "✔ OK, Proceed to Portal ({remaining}s)",
+        "footer": "© 2026 PCIT Maharashtra, All rights reserved.<br><b>Designed and Developed by PCIT Maha Police</b>"
+    },
+    "मराठी": {
+        "portal_title": "एमएटी केस मॅनेजमेंट पोर्टल - पीसीआयटी महाराष्ट्र",
+        "login_prompt": "कृपया आपल्या नियुक्त क्रेडेन्शियल्ससह साइन इन करा.",
+        "secure_signin": "🔐 सुरक्षित साइन इन",
+        "username": "वापरकर्ता नाव (Username)",
+        "password": "पासवर्ड (Password)",
+        "signin_btn": "साइन इन करा",
+        "invalid_login": "अवैध वापरकर्ता नाव किंवा पासवर्ड. कृपया पुन्हा प्रयत्न करा.",
+        "nav_header": "⚖️ एमएटी पोर्टल नेव्हिगेशन",
+        "user_label": "वापरकर्ता",
+        "role_label": "भूमिका",
+        "logout_btn": "बाहेर पडा (Log Out)",
+        "dashboard_title": "डॅशबोर्ड आणि रिपॉजिटरी",
+        "access_level": "प्रवेश स्तर",
+        "supervisor_filters": "सुपरवायझर फिल्टर",
+        "filter_bench": "पीठाद्वारे फिल्टर करा",
+        "filter_year": "दाखल वर्षानुसार फिल्टर करा",
+        "filter_cat": "प्रार्थना श्रेणीनुसार फिल्टर करा",
+        "filter_hearing": "पुढील सुनावणी तारखेनुसार फिल्टर करा",
+        "all_benches": "सर्व पीठे",
+        "all_years": "सर्व वर्षे",
+        "all_categories": "सर्व श्रेणी",
+        "all_time": "सर्व वेळ",
+        "open_entry": "➕ डेटा एंट्री फॉर्म उघडा",
+        "edit_record": "✏️ विद्यमान केस रेकॉर्ड संपादित करा",
+        "case_no": "केस क्रमांक (उदा. OA 123)",
+        "year_filing": "दाखल करण्याचे वर्ष",
+        "select_year": "कृपया वर्ष निवडा",
+        "bench_name": "न्यायालयाचे पीठ (Bench)",
+        "select_court": "कृपया न्यायालय निवडा",
+        "others": "इतर",
+        "custom_bench": "कृपया न्यायालयाचे नाव निर्दिष्ट करा (इतर असल्यास)",
+        "applicant": "अर्जदाराचे नाव",
+        "subject": "विषय / प्रार्थना",
+        "category": "प्रार्थना/विषयाचा वर्ग",
+        "select_cat": "कृपया योग्य श्रेणी निवडा",
+        "brief": "थोडक्यात केसची माहिती (कमाल ~१५० शब्द)",
+        "affidavit": "प्रतिज्ञापत्र (Affidavit) तपशील",
+        "main_app": "मुख्य अर्जाचा तपशील",
+        "status_date": "केस स्थिती दिनांक (उदा. २०२६-०६-१५ किंवा 'Pending')",
+        "has_hearing_chk": "पुढील सुनावणीची तारीख दिली आहे का?",
+        "hearing_date": "पुढील सुनावणीची तारीख",
+        "upload_pdf": "केस दस्तऐवज अपलोड करा (PDF)",
+        "submit_btn": "केस रेकॉर्ड सबमिट करा",
+        "update_btn": "केस रेकॉर्ड अपडेट करा",
+        "select_edit_case": "संपादित करण्यासाठी केस निवडा",
+        "live_repo": "लाइव्ह केस रिपॉजिटरी",
+        "repo_tip": "💡 *टीप: ज्या केसेसची सुनावणी **१ आठवड्यात** आहे त्या हिरव्या रंगात दर्शविल्या आहेत.*",
+        "search_box": "🔍 केस शोधा",
+        "search_placeholder": "केस, अर्जदार, विषय शोधण्यासाठी टाइप करा...",
+        "export_csv": "📥 CSV मध्ये निर्यात करा",
+        "no_cases": "निवडलेल्या फिल्टरशी जुळणाऱ्या कोणत्याही केसेस सापडल्या नाहीत.",
+        "no_edit_cases": "संपादित करण्यासाठी डेटाबेसमध्ये कोणतीही केस उपलब्ध नाही.",
+        "popup_title": "🔔 अत्यंत महत्त्वाचे: पुढील ७ दिवसांत सुनावणी असलेल्या केसेस",
+        "popup_warning": "⚠️ पुढील आठवड्यात तुमच्या **{count} केसेस** सुनावणीसाठी शेड्यूल केल्या आहेत!",
+        "popup_success": "✅ आनंदाची बातमी! पुढील ७ दिवसांत कोणतीही सुनावणी शेड्यूल केलेली नाही.",
+        "popup_btn": "✔ ठीक आहे, पोर्टलवर पुढे जा ({remaining}s)",
+        "footer": "© २०२६ पीसीआयटी महाराष्ट्र, सर्व हक्क सुरक्षित.<br><b>पीसीआयटी महा पोलीस द्वारे डिझाइन आणि विकसित</b>"
+    }
+}
+
+def t(key):
+    lang = st.session_state.get("lang", "English")
+    return TRANSLATIONS.get(lang, TRANSLATIONS["English"]).get(key, key)
 
 UPLOAD_DIR = "uploaded_pdfs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -197,7 +311,6 @@ def init_db():
         except sqlite3.OperationalError:
             pass
 
-    # Users Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
@@ -220,6 +333,9 @@ def init_db():
 init_db()
 
 # --- 2. AUTHENTICATION & SESSION STATE WITH REFRESH PERSISTENCE ---
+if "lang" not in st.session_state:
+    st.session_state.lang = "English"
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.username = ""
@@ -242,6 +358,11 @@ if "success_notification" not in st.session_state:
 
 # --- 3. LOGIN PAGE UI ---
 if not st.session_state.logged_in:
+    # Language Switcher on Login Page Top Right
+    col_lang_top, _ = st.columns([2, 8])
+    with col_lang_top:
+        st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], key="login_lang_sel")
+
     banner_container = st.container()
     with banner_container:
         st.markdown('<div class="orange-banner">', unsafe_allow_html=True)
@@ -259,20 +380,20 @@ if not st.session_state.logged_in:
                 st.markdown("<h1>⚖️</h1>", unsafe_allow_html=True)
         with col_text:
             st.markdown(
-                '<h1 style="border-bottom: 5px solid #2E7D32; padding-bottom: 8px; display: inline-block;">MAT Case Management Portal - PCIT Maharashtra</h1>', 
+                f'<h1 style="border-bottom: 5px solid #2E7D32; padding-bottom: 8px; display: inline-block;">{t("portal_title")}</h1>', 
                 unsafe_allow_html=True
             )
-            st.markdown("<p>Please sign in with your assigned credentials.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p>{t('login_prompt')}</p>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     _, form_col, _ = st.columns([3.5, 3, 3.5])
     
     with form_col:
         with st.form("login_form"):
-            st.markdown("### 🔐 Secure Sign In")
-            username_input = st.text_input("Username")
-            password_input = st.text_input("Password", type="password")
-            login_btn = st.form_submit_button("Sign In", use_container_width=True)
+            st.markdown(f"### {t('secure_signin')}")
+            username_input = st.text_input(t("username"))
+            password_input = st.text_input(t("password"), type="password")
+            login_btn = st.form_submit_button(t("signin_btn"), use_container_width=True)
             
         if login_btn:
             conn = sqlite3.connect("mat_cases.db")
@@ -291,14 +412,13 @@ if not st.session_state.logged_in:
                 st.query_params["role"] = user_record[1]
                 st.rerun()
             else:
-                st.error("Invalid username or password. Please try again.")
+                st.error(t("invalid_login"))
 
     st.markdown(
-        """
+        f"""
         <div style="text-align: center; margin-top: 60px; color: #555; font-size: 13px;">
             <hr style="border: 0; border-top: 1px solid #D3C5B4; margin-bottom: 15px; width: 50%; margin-left: auto; margin-right: auto;">
-            © 2026 PCIT Maharashtra, All rights reserved.<br>
-            <b>Designed and Developed by PCIT Maha Police</b>
+            {t('footer')}
         </div>
         """,
         unsafe_allow_html=True
@@ -353,16 +473,17 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
     _, pop_col, _ = st.columns([2, 6, 2])
     with pop_col:
         with st.container(border=True):
-            st.subheader("🔔 URGENT: Upcoming Hearings in the Next 7 Days")
+            st.subheader(t("popup_title"))
             
             if upcoming_cases:
-                st.warning(f"⚠️ You have **{len(upcoming_cases)} case(s)** scheduled for hearing within the next week!")
+                warning_msg = t("popup_warning").format(count=len(upcoming_cases))
+                st.warning(warning_msg)
                 pop_display_df = pd.DataFrame(upcoming_cases)
                 st.dataframe(pop_display_df, use_container_width=True, hide_index=True)
             else:
-                st.info("✅ Good news! There are no hearings scheduled within the next 7 days.")
+                st.info(t("popup_success"))
 
-            btn_label = f"✔ OK, Proceed to Portal ({remaining}s)"
+            btn_label = t("popup_btn").format(remaining=remaining)
             if st.button(btn_label, type="primary", key="close_popup_btn", use_container_width=True):
                 st.session_state.show_login_popup = False
                 if "popup_start_time" in st.session_state:
@@ -375,11 +496,15 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
 
 # --- 5. MAIN PORTAL HEADER & SIDEBAR ---
 with st.sidebar:
-    st.markdown("### ⚖️ MAT Portal Navigation")
-    st.markdown(f"👤 **User:** {st.session_state.username}")
-    st.markdown(f"🛡️ **Role:** {st.session_state.role}")
+    # Language Selector in Sidebar
+    st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], key="sidebar_lang_sel")
+    st.markdown("---")
     
-    if st.button("Log Out", key="sidebar_logout_btn"):
+    st.markdown(f"### {t('nav_header')}")
+    st.markdown(f"👤 **{t('user_label')}:** {st.session_state.username}")
+    st.markdown(f"🛡️ **{t('role_label')}:** {st.session_state.role}")
+    
+    if st.button(t("logout_btn"), key="sidebar_logout_btn"):
         st.session_state.logged_in = False
         st.session_state.username = ""
         st.session_state.role = ""
@@ -391,8 +516,8 @@ with st.sidebar:
         
     st.markdown("---")
 
-st.title("MAT Case Management Portal - PCIT Maharashtra")
-st.markdown(f"**Dashboard & Repository (Access Level: {st.session_state.role})**")
+st.title(t("portal_title"))
+st.markdown(f"**{t('dashboard_title')} ({t('access_level')}: {st.session_state.role})**")
 
 if st.session_state.success_notification:
     st.success(st.session_state.success_notification)
@@ -411,7 +536,7 @@ category_options = [
 ]
 
 standard_benches = ["MAT Mumbai", "MAT Nagpur", "MAT Chhatrapati Sambhajinagar"]
-year_options = ["Please select year"] + [str(y) for y in range(2026, 1949, -1)]
+year_options = [t("select_year")] + [str(y) for y in range(2026, 1949, -1)]
 
 # Sidebar Filters
 conn_filter = sqlite3.connect("mat_cases.db")
@@ -421,7 +546,7 @@ db_benches = []
 db_years = []
 for row in cursor_filter.fetchall():
     b, ob, yr = row[0], row[1], row[2]
-    if b == "Others" and ob:
+    if b == t("others") and ob:
         db_benches.append(ob)
     elif b and b not in standard_benches:
         db_benches.append(b)
@@ -429,46 +554,46 @@ for row in cursor_filter.fetchall():
         db_years.append(yr)
 conn_filter.close()
 
-all_filter_benches = ["All Benches"] + list(set(standard_benches + db_benches))
-all_filter_years = ["All Years"] + sorted(list(set(db_years)), reverse=True)
-hearing_filter_options = ["All Time", "Within 1 week", "Within 2 weeks", "Within 3 weeks", "Within 4 weeks"]
+all_filter_benches = [t("all_benches")] + list(set(standard_benches + db_benches))
+all_filter_years = [t("all_years")] + sorted(list(set(db_years)), reverse=True)
+hearing_filter_options = [t("all_time"), "Within 1 week", "Within 2 weeks", "Within 3 weeks", "Within 4 weeks"]
 
-st.sidebar.header("Supervisor Filters")
-selected_bench = st.sidebar.selectbox("Filter by Bench", all_filter_benches, key="filter_bench")
-selected_year = st.sidebar.selectbox("Filter by Year of Filing", all_filter_years, key="filter_year")
-selected_category = st.sidebar.selectbox("Filter by Category of Prayer", ["All Categories"] + category_options, key="filter_cat")
-selected_hearing_filter = st.sidebar.selectbox("Filter by Next Hearing Date", hearing_filter_options, key="filter_hearing")
+st.sidebar.header(t("supervisor_filters"))
+selected_bench = st.sidebar.selectbox(t("filter_bench"), all_filter_benches, key="filter_bench")
+selected_year = st.sidebar.selectbox(t("filter_year"), all_filter_years, key="filter_year")
+selected_category = st.sidebar.selectbox(t("filter_cat"), [t("all_categories")] + category_options, key="filter_cat")
+selected_hearing_filter = st.sidebar.selectbox(t("filter_hearing"), hearing_filter_options, key="filter_hearing")
 
 # --- 6. DATA ENTRY FORM & EDIT RECORD FORM (Clerk Only) ---
 if st.session_state.role == "Clerk / Data Entry":
     # --- A. NEW DATA ENTRY FORM ---
-    with st.expander("➕ Open Data Entry Form", expanded=False):
+    with st.expander(t("open_entry"), expanded=False):
         rc = st.session_state.form_reset_counter
         
-        case_number = st.text_input("Case Number (e.g., OA 123)", key=f"de_case_no_{rc}")
-        year_of_filing = st.selectbox("Year of Filing", year_options, key=f"de_year_{rc}")
+        case_number = st.text_input(t("case_no"), key=f"de_case_no_{rc}")
+        year_of_filing = st.selectbox(t("year_filing"), year_options, key=f"de_year_{rc}")
         
-        bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
-        bench_selection = st.selectbox("Name of Bench / Bench", bench_choices, key=f"de_bench_{rc}")
-        custom_bench = st.text_input("Please specify Court Name (if Others)", key=f"de_custom_bench_{rc}")
+        bench_choices = [t("select_court")] + standard_benches + [t("others")]
+        bench_selection = st.selectbox(t("bench_name"), bench_choices, key=f"de_bench_{rc}")
+        custom_bench = st.text_input(t("custom_bench"), key=f"de_custom_bench_{rc}")
 
-        applicant_name = st.text_input("Applicant Name", key=f"de_applicant_{rc}")
-        subject_prayer = st.text_input("Subject/Prayer", key=f"de_subject_{rc}")
+        applicant_name = st.text_input(t("applicant"), key=f"de_applicant_{rc}")
+        subject_prayer = st.text_input(t("subject"), key=f"de_subject_{rc}")
         
-        cat_choices = ["Please select appropriate category"] + category_options
-        category_prayer = st.selectbox("Category of Prayer/Subject", cat_choices, key=f"de_cat_{rc}")
+        cat_choices = [t("select_cat")] + category_options
+        category_prayer = st.selectbox(t("category"), cat_choices, key=f"de_cat_{rc}")
         
-        case_brief = st.text_area("Case in Brief (Max ~150 words)", key=f"de_brief_{rc}")
-        affidavit_details = st.text_area("Affidavit Filing Details", key=f"de_affidavit_{rc}")
-        main_application_details = st.text_area("Details of Main Application", key=f"de_main_app_{rc}")
-        case_status_date = st.text_input("Case Status Date (e.g., 2026-06-15 or 'Pending')", key=f"de_status_{rc}")
+        case_brief = st.text_area(t("brief"), key=f"de_brief_{rc}")
+        affidavit_details = st.text_area(t("affidavit"), key=f"de_affidavit_{rc}")
+        main_application_details = st.text_area(t("main_app"), key=f"de_main_app_{rc}")
+        case_status_date = st.text_input(t("status_date"), key=f"de_status_{rc}")
         
-        has_hearing = st.checkbox("Is next hearing date given?", value=True, key=f"de_has_hearing_{rc}")
-        next_hearing_date_obj = st.date_input("Next Hearing Date", value=datetime.date.today(), disabled=not has_hearing, key=f"de_hearing_date_{rc}")
+        has_hearing = st.checkbox(t("has_hearing_chk"), value=True, key=f"de_has_hearing_{rc}")
+        next_hearing_date_obj = st.date_input(t("hearing_date"), value=datetime.date.today(), disabled=not has_hearing, key=f"de_hearing_date_{rc}")
         
-        uploaded_pdf = st.file_uploader("Upload Case Document (PDF)", type=["pdf"], key=f"de_pdf_{rc}")
+        uploaded_pdf = st.file_uploader(t("upload_pdf"), type=["pdf"], key=f"de_pdf_{rc}")
 
-        submitted = st.button("Submit Case Record", key=f"de_submit_btn_{rc}", type="primary")
+        submitted = st.button(t("submit_btn"), key=f"de_submit_btn_{rc}", type="primary")
 
         if submitted:
             if has_hearing:
@@ -476,8 +601,8 @@ if st.session_state.role == "Clerk / Data Entry":
             else:
                 next_hearing_date_str = "Date Not available"
 
-            final_bench_val = "Others" if bench_selection == "Others" else bench_selection
-            final_other_details = custom_bench.strip() if bench_selection == "Others" else None
+            final_bench_val = t("others") if bench_selection == t("others") else bench_selection
+            final_other_details = custom_bench.strip() if bench_selection == t("others") else None
 
             pdf_path = None
             if uploaded_pdf is not None:
@@ -487,13 +612,13 @@ if st.session_state.role == "Clerk / Data Entry":
                 with open(pdf_path, "wb") as f:
                     f.write(uploaded_pdf.getbuffer())
 
-            if year_of_filing == "Please select year":
+            if year_of_filing == t("select_year"):
                 st.error("Please select a valid Year of Filing.")
-            elif bench_selection == "Please Select Court":
+            elif bench_selection == t("select_court"):
                 st.error("Please select a valid Court or Bench.")
-            elif bench_selection == "Others" and not custom_bench.strip():
+            elif bench_selection == t("others") and not custom_bench.strip():
                 st.error("Please specify the Court Name.")
-            elif category_prayer == "Please select appropriate category":
+            elif category_prayer == t("select_cat"):
                 st.error("Please select an appropriate category of prayer/subject.")
             elif case_number and applicant_name:
                 conn = sqlite3.connect("mat_cases.db")
@@ -511,8 +636,8 @@ if st.session_state.role == "Clerk / Data Entry":
             else:
                 st.error("Please fill in at least the Case Number and Applicant Name.")
 
-    # --- B. EDIT EXISTING CASE RECORD FORM (WITH REACTIVE HEARING CHECKBOX) ---
-    with st.expander("✏️ Edit Existing Case Record", expanded=False):
+    # --- B. EDIT EXISTING CASE RECORD FORM ---
+    with st.expander(t("edit_record"), expanded=False):
         conn_edit = sqlite3.connect("mat_cases.db")
         cursor_edit = conn_edit.cursor()
         cursor_edit.execute("SELECT id, case_number, year_of_filing, applicant_name FROM cases")
@@ -521,7 +646,7 @@ if st.session_state.role == "Clerk / Data Entry":
         
         if cases_list:
             case_options_map = {f"ID: {row[0]} | {row[1]}/{row[2]} - {row[3]}": row[0] for row in cases_list}
-            selected_case_label = st.selectbox("Select Case to Edit", list(case_options_map.keys()), key="edit_case_select")
+            selected_case_label = st.selectbox(t("select_edit_case"), list(case_options_map.keys()), key="edit_case_select")
             selected_case_id = case_options_map[selected_case_label]
             
             conn_full = sqlite3.connect("mat_cases.db")
@@ -531,25 +656,25 @@ if st.session_state.role == "Clerk / Data Entry":
             conn_full.close()
             
             if c_data:
-                e_case_no = st.text_input("Case Number", value=c_data[0], key=f"edit_case_no_{selected_case_id}")
-                e_year = st.selectbox("Year of Filing", year_options, index=year_options.index(c_data[1]) if c_data[1] in year_options else 0, key=f"edit_year_{selected_case_id}")
+                e_case_no = st.text_input(t("case_no"), value=c_data[0], key=f"edit_case_no_{selected_case_id}")
+                e_year = st.selectbox(t("year_filing"), year_options, index=year_options.index(c_data[1]) if c_data[1] in year_options else 0, key=f"edit_year_{selected_case_id}")
                 
-                bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
-                b_idx = bench_choices.index(c_data[2]) if c_data[2] in bench_choices else (bench_choices.index("Others") if c_data[2] else 0)
-                e_bench = st.selectbox("Name of Bench / Bench", bench_choices, index=b_idx, key=f"edit_bench_{selected_case_id}")
-                e_custom_bench = st.text_input("Please specify Court Name (if Others)", value=c_data[3] if c_data[3] else "", key=f"edit_custom_bench_{selected_case_id}")
+                bench_choices = [t("select_court")] + standard_benches + [t("others")]
+                b_idx = bench_choices.index(c_data[2]) if c_data[2] in bench_choices else (bench_choices.index(t("others")) if c_data[2] else 0)
+                e_bench = st.selectbox(t("bench_name"), bench_choices, index=b_idx, key=f"edit_bench_{selected_case_id}")
+                e_custom_bench = st.text_input(t("custom_bench"), value=c_data[3] if c_data[3] else "", key=f"edit_custom_bench_{selected_case_id}")
                 
-                e_applicant = st.text_input("Applicant Name", value=c_data[4] if c_data[4] else "", key=f"edit_applicant_{selected_case_id}")
-                e_subject = st.text_input("Subject/Prayer", value=c_data[5] if c_data[5] else "", key=f"edit_subject_{selected_case_id}")
+                e_applicant = st.text_input(t("applicant"), value=c_data[4] if c_data[4] else "", key=f"edit_applicant_{selected_case_id}")
+                e_subject = st.text_input(t("subject"), value=c_data[5] if c_data[5] else "", key=f"edit_subject_{selected_case_id}")
                 
-                cat_choices = ["Please select appropriate category"] + category_options
+                cat_choices = [t("select_cat")] + category_options
                 c_idx = cat_choices.index(c_data[6]) if c_data[6] in cat_choices else 0
-                e_cat = st.selectbox("Category of Prayer/Subject", cat_choices, index=c_idx, key=f"edit_cat_{selected_case_id}")
+                e_cat = st.selectbox(t("category"), cat_choices, index=c_idx, key=f"edit_cat_{selected_case_id}")
                 
-                e_brief = st.text_area("Case in Brief", value=c_data[7] if c_data[7] else "", key=f"edit_brief_{selected_case_id}")
-                e_affidavit = st.text_area("Affidavit Filing Details", value=c_data[8] if c_data[8] else "", key=f"edit_affidavit_{selected_case_id}")
-                e_main_app = st.text_area("Details of Main Application", value=c_data[9] if c_data[9] else "", key=f"edit_main_app_{selected_case_id}")
-                e_status = st.text_input("Case Status Date", value=c_data[10] if c_data[10] else "", key=f"edit_status_{selected_case_id}")
+                e_brief = st.text_area(t("brief"), value=c_data[7] if c_data[7] else "", key=f"edit_brief_{selected_case_id}")
+                e_affidavit = st.text_area(t("affidavit"), value=c_data[8] if c_data[8] else "", key=f"edit_affidavit_{selected_case_id}")
+                e_main_app = st.text_area(t("main_app"), value=c_data[9] if c_data[9] else "", key=f"edit_main_app_{selected_case_id}")
+                e_status = st.text_input(t("status_date"), value=c_data[10] if c_data[10] else "", key=f"edit_status_{selected_case_id}")
                 
                 curr_hearing = c_data[11]
                 has_h_val = True
@@ -565,15 +690,15 @@ if st.session_state.role == "Clerk / Data Entry":
                         except:
                             pass
                             
-                e_has_hearing = st.checkbox("Is next hearing date given?", value=has_h_val, key=f"edit_has_hearing_{selected_case_id}")
-                e_hearing_date = st.date_input("Next Hearing Date", value=h_date_val, disabled=not e_has_hearing, key=f"edit_hearing_date_{selected_case_id}")
+                e_has_hearing = st.checkbox(t("has_hearing_chk"), value=has_h_val, key=f"edit_has_hearing_{selected_case_id}")
+                e_hearing_date = st.date_input(t("hearing_date"), value=h_date_val, disabled=not e_has_hearing, key=f"edit_hearing_date_{selected_case_id}")
                 
-                update_submitted = st.button("Update Case Record", key=f"edit_submit_{selected_case_id}", type="primary")
+                update_submitted = st.button(t("update_btn"), key=f"edit_submit_{selected_case_id}", type="primary")
                 
                 if update_submitted:
                     final_h_str = e_hearing_date.strftime("%Y-%m-%d") if e_has_hearing else "Date Not available"
-                    final_b_val = "Others" if e_bench == "Others" else e_bench
-                    final_ob_details = e_custom_bench.strip() if e_bench == "Others" else None
+                    final_b_val = t("others") if e_bench == t("others") else e_bench
+                    final_ob_details = e_custom_bench.strip() if e_bench == t("others") else None
                     
                     conn_up = sqlite3.connect("mat_cases.db")
                     cur_up = conn_up.cursor()
@@ -591,11 +716,11 @@ if st.session_state.role == "Clerk / Data Entry":
                     st.session_state.success_notification = f"✅ Success! Case {e_case_no}/{e_year} has been successfully updated."
                     st.rerun()
         else:
-            st.info("No cases available in the database to edit.")
+            st.info(t("no_edit_cases"))
 
 # --- 7. SUPERVISOR REPOSITORY & SEARCH ---
-st.subheader("Live Case Repository")
-st.markdown("💡 *Tip: Cases with upcoming hearings **within 1 week** are highlighted in light green.*")
+st.subheader(t("live_repo"))
+st.markdown(t("repo_tip"))
 
 conn = sqlite3.connect("mat_cases.db")
 query = """
@@ -610,13 +735,13 @@ query = """
 """
 params = []
 
-if selected_bench != "All Benches":
+if selected_bench != t("all_benches"):
     query += " AND (bench = ? OR other_bench_details = ?)"
     params.extend([selected_bench, selected_bench])
-if selected_year != "All Years":
+if selected_year != t("all_years"):
     query += " AND year_of_filing = ?"
     params.append(selected_year)
-if selected_category != "All Categories":
+if selected_category != t("all_categories"):
     query += " AND category_prayer = ?"
     params.append(selected_category)
 
@@ -637,7 +762,7 @@ if not df.empty:
 
     df["Next Hearing Date"] = df["Next Hearing Date"].apply(format_date_display)
 
-    if selected_hearing_filter != "All Time":
+    if selected_hearing_filter != t("all_time"):
         today = datetime.date.today()
         days_map = {"Within 1 week": 7, "Within 2 weeks": 14, "Within 3 weeks": 21, "Within 4 weeks": 28}
         target_days = days_map.get(selected_hearing_filter, 7)
@@ -658,7 +783,7 @@ if not df.empty:
     
     col_t1, col_t2 = st.columns([3, 1])
     with col_t1:
-        search_query = st.text_input("🔍 Search Cases", placeholder="Type to search cases, applicants, subjects...", key="search_box")
+        search_query = st.text_input(t("search_box"), placeholder=t("search_placeholder"), key="search_box")
         
     if search_query:
         mask = display_df.astype(str).apply(lambda row: row.str.contains(search_query, case=False, na=False).any(), axis=1)
@@ -668,7 +793,7 @@ if not df.empty:
         st.write("")
         csv_data = display_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Export to CSV",
+            label=t("export_csv"),
             data=csv_data,
             file_name="mat_cases_report.csv",
             mime="text/csv",
@@ -690,4 +815,4 @@ if not df.empty:
     styled_df = display_df.style.apply(highlight_upcoming_hearing, axis=1)
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
 else:
-    st.info("No cases found matching the selected filters.")
+    st.info(t("no_cases"))
