@@ -1,12 +1,93 @@
 import datetime
 import os
 import sqlite3
+import time
 import pandas as pd
 import streamlit as st
 
-# --- PAGE CONFIGURATION ---
+# --- PAGE CONFIGURATION & WARM WHITE THEME ---
 st.set_page_config(
-    page_title="MAT Case Management Portal - Maharashtra", page_icon="⚖️", layout="wide"
+    page_title="MAT Case Management Portal - PCIT Maharashtra",
+    page_icon="⚖️",
+    layout="wide"
+)
+
+st.markdown(
+    """
+    <style>
+    /* Global Warm White Background & Professional Font */
+    .stApp {
+        background-color: #FDFBF7;
+        color: #2C3E50;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Sidebar Styling for Warm Aesthetic */
+    [data-testid="stSidebar"] {
+        background-color: #F5EFEB;
+    }
+
+    /* Full-Width Layout Expansion */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2.5rem;
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+        max-width: 100%;
+    }
+
+    /* Professional Header Styles */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #1A252C;
+    }
+    
+    p, label, span {
+        color: #2C3E50;
+    }
+
+    /* Professional Orange Banner for Login Header */
+    .orange-banner {
+        background-color: #E65100;
+        padding: 25px;
+        border-radius: 12px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .orange-banner h1 {
+        color: white !important;
+        font-size: 26px !important;
+        margin-bottom: 5px !important;
+    }
+    .orange-banner p {
+        color: #FFE0B2 !important;
+        font-size: 15px !important;
+        margin: 0 !important;
+    }
+
+    /* Attractive Modern Search Text Box Styling (Soft Sky Blue & Royal Blue) */
+    input[aria-label="🔍 Search Cases"] {
+        background-color: #EBF5FB !important;
+        color: #2C3E50 !important;
+        border: 2px solid #2980B9 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 6px rgba(41, 128, 185, 0.2) !important;
+    }
+
+    /* Completely Disable Image Zoom / Fullscreen Toolbar Overlay on st.image */
+    [data-testid="stImage"] img {
+        pointer-events: none !important;
+    }
+    [data-testid="stImageToolbar"], 
+    button[title*="View fullscreen"], 
+    button[title*="Fullscreen"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 UPLOAD_DIR = "uploaded_pdfs"
@@ -87,37 +168,83 @@ if "success_notification" not in st.session_state:
 
 # --- 3. LOGIN PAGE UI ---
 if not st.session_state.logged_in:
-    st.title("⚖️ MAT Case Management Portal - Login")
-    st.markdown("Please sign in with your assigned credentials.")
+    banner_container = st.container()
+    with banner_container:
+        st.markdown('<div class="orange-banner">', unsafe_allow_html=True)
+        col_logo, col_text = st.columns([1, 8])
+        with col_logo:
+            if os.path.exists("logo.jpg"):
+                import base64
+                with open("logo.jpg", "rb") as img_file:
+                    encoded_logo = base64.b64encode(img_file.read()).decode()
+                st.markdown(
+                    f'<img src="data:image/jpeg;base64,{encoded_logo}" width="180" style="border-radius: 6px; pointer-events: none;">',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown("<h1>⚖️</h1>", unsafe_allow_html=True)
+        with col_text:
+            st.markdown(
+                '<h1 style="border-bottom: 5px solid #2E7D32; padding-bottom: 8px; display: inline-block;">MAT Case Management Portal - PCIT Maharashtra</h1>', 
+                unsafe_allow_html=True
+            )
+            st.markdown("<p>Please sign in with your assigned credentials.</p>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    with st.form("login_form"):
-        username_input = st.text_input("Username")
-        password_input = st.text_input("Password", type="password")
-        login_btn = st.form_submit_button("Sign In")
-        
-    if login_btn:
-        conn = sqlite3.connect("mat_cases.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT password, role FROM users WHERE username = ?", (username_input,))
-        user_record = cursor.fetchone()
-        conn.close()
-        
-        if user_record and user_record[0] == password_input:
-            st.session_state.logged_in = True
-            st.session_state.username = username_input
-            st.session_state.role = user_record[1]
-            st.session_state.show_login_popup = True  # Trigger popup on fresh login
-            st.success(f"Welcome back, {username_input}! Redirecting...")
-            st.rerun()
-        else:
-            st.error("Invalid username or password. Please try again.")
+    # --- 30% CENTERED LOGIN FORM CONTAINER ---
+    _, form_col, _ = st.columns([3.5, 3, 3.5])
+    
+    with form_col:
+        with st.form("login_form"):
+            st.markdown("### 🔐 Secure Sign In")
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            login_btn = st.form_submit_button("Sign In", use_container_width=True)
             
-    st.info("💡 **Test Credentials:**\n* **Clerk:** `clerk1` / `clerk123`\n* **Officer:** `officer1` / `officer123`")
+        if login_btn:
+            conn = sqlite3.connect("mat_cases.db")
+            cursor = conn.cursor()
+            cursor.execute("SELECT password, role FROM users WHERE username = ?", (username_input,))
+            user_record = cursor.fetchone()
+            conn.close()
+            
+            if user_record and user_record[0] == password_input:
+                st.session_state.logged_in = True
+                st.session_state.username = username_input
+                st.session_state.role = user_record[1]
+                st.session_state.show_login_popup = True
+                st.session_state.popup_start_time = time.time()  # Start 10s countdown timer
+                st.rerun()
+            else:
+                st.error("Invalid username or password. Please try again.")
+
+    # --- COPYRIGHT FOOTER FOR LOGIN PAGE ---
+    st.markdown(
+        """
+        <div style="text-align: center; margin-top: 60px; color: #555; font-size: 13px;">
+            <hr style="border: 0; border-top: 1px solid #D3C5B4; margin-bottom: 15px; width: 50%; margin-left: auto; margin-right: auto;">
+            © 2026 PCIT Maharashtra Police. All rights reserved.<br>
+            <b>Designed and Developed by PCIT Maha Police</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.stop()
 
-# --- 4. LOGIN POPUP NOTIFICATION (Shows Once Upon Login) ---
-if st.session_state.show_login_popup:
-    # Fetch upcoming hearings within 1 week from DB
+# --- 4. EXCLUSIVE CENTERED POPUP WITH 10-SECOND COUNTDOWN TIMER ---
+if st.session_state.logged_in and st.session_state.show_login_popup:
+    if "popup_start_time" not in st.session_state:
+        st.session_state.popup_start_time = time.time()
+
+    elapsed = int(time.time() - st.session_state.popup_start_time)
+    remaining = max(0, 10 - elapsed)
+
+    if remaining == 0:
+        st.session_state.show_login_popup = False
+        if "popup_start_time" in st.session_state:
+            del st.session_state.popup_start_time
+        st.rerun()
+
     conn_pop = sqlite3.connect("mat_cases.db")
     query_pop = """
         SELECT case_number, year_of_filing, 
@@ -145,36 +272,33 @@ if st.session_state.show_login_popup:
             except:
                 pass
 
-    # Render a modal popup overlay using container and styling
-    st.markdown("""
-        <style>
-        .popup-box {
-            background-color: #FDFBF7;
-            border: 2px solid #2C3E50;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            margin-bottom: 20px;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    # Vertical & Horizontal Centering Spacers
+    st.write("")
+    st.write("")
+    st.write("")
+    
+    _, pop_col, _ = st.columns([2, 6, 2])
+    with pop_col:
+        with st.container(border=True):
+            st.subheader("🔔 URGENT: Upcoming Hearings in the Next 7 Days")
+            
+            if upcoming_cases:
+                st.warning(f"⚠️ You have **{len(upcoming_cases)} case(s)** scheduled for hearing within the next week!")
+                pop_display_df = pd.DataFrame(upcoming_cases)
+                st.dataframe(pop_display_df, use_container_width=True, hide_index=True)
+            else:
+                st.info("✅ Good news! There are no hearings scheduled within the next 7 days.")
 
-    with st.container():
-        st.markdown('<div class="popup-box">', unsafe_allow_html=True)
-        st.subheader("🔔 URGENT: Upcoming Hearings in the Next 7 Days")
-        
-        if upcoming_cases:
-            st.warning(f"⚠️ You have **{len(upcoming_cases)} case(s)** scheduled for hearing within the next week!")
-            pop_display_df = pd.DataFrame(upcoming_cases)
-            st.dataframe(pop_display_df, use_container_width=True, hide_index=True)
-        else:
-            st.info("✅ Good news! There are no hearings scheduled within the next 7 days.")
+            btn_label = f"✔ OK, Proceed to Portal ({remaining}s)"
+            if st.button(btn_label, type="primary", key="close_popup_btn", use_container_width=True):
+                st.session_state.show_login_popup = False
+                if "popup_start_time" in st.session_state:
+                    del st.session_state.popup_start_time
+                st.rerun()
 
-        if st.button("✔ OK, Proceed to Portal", type="primary", key="close_popup_btn"):
-            st.session_state.show_login_popup = False
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    st.stop()  # Pauses execution of the rest of the portal until OK is pressed
+    time.sleep(1)
+    st.rerun()
+    st.stop()
 
 # --- 5. MAIN PORTAL HEADER & SIDEBAR ---
 with st.sidebar:
@@ -186,42 +310,28 @@ with st.sidebar:
         st.session_state.username = ""
         st.session_state.role = ""
         st.session_state.show_login_popup = False
+        if "popup_start_time" in st.session_state:
+            del st.session_state.popup_start_time
         st.rerun()
     st.markdown("---")
 
 st.title("MAT Case Management Portal - Maharashtra")
 st.markdown(f"Dashboard & Repository (Access Level: **{st.session_state.role}**)")
 
-# Display persistent success notification if available from previous run
 if st.session_state.success_notification:
     st.success(st.session_state.success_notification)
     st.session_state.success_notification = None
 
-# Category Options List
 category_options = [
-    "1. Recruitment and Selection process",
-    "2. Recruitment Rules",
-    "3. Timely Bound Promotions",
-    "4. Assured progression scheme",
-    "5. Promotion request",
-    "6. HRA start request",
-    "7. Issuence of Pension",
-    "8. Increment stoppage",
-    "9. Supernumerary post",
-    "10. FAke Certificate",
-    "11. Demand for Old Pension",
-    "13. Advanced Increment",
-    "14. Objection on Promotion Order",
-    "15. Objection on Transfer order",
-    "16. Other Objection",
-    "17. Deemed date Promotion and related benifits",
-    "18. Service Removal",
-    "19. Prilimanary enquery, Departmental enquery and Suspension",
-    "20. Hindi Language Concession",
-    "21. Concession due completion of 45 years of Age",
-    "22. Criminal case registered against employee",
-    "23. Compassinate appointment",
-    "25. Other issues"
+    "1. Recruitment and Selection process", "2. Recruitment Rules", "3. Timely Bound Promotions",
+    "4. Assured progression scheme", "5. Promotion request", "6. HRA start request",
+    "7. Issuence of Pension", "8. Increment stoppage", "9. Supernumerary post",
+    "10. FAke Certificate", "11. Demand for Old Pension", "13. Advanced Increment",
+    "14. Objection on Promotion Order", "15. Objection on Transfer order", "16. Other Objection",
+    "17. Deemed date Promotion and related benifits", "18. Service Removal",
+    "19. Prilimanary enquery, Departmental enquery and Suspension", "20. Hindi Language Concession",
+    "21. Concession due completion of 45 years of Age", "22. Criminal case registered against employee",
+    "23. Compassinate appointment", "25. Other issues"
 ]
 
 standard_benches = ["MAT Mumbai", "MAT Nagpur", "MAT Chhatrapati Sambhajinagar"]
@@ -245,13 +355,7 @@ conn_filter.close()
 
 all_filter_benches = ["All Benches"] + list(set(standard_benches + db_benches))
 all_filter_years = ["All Years"] + sorted(list(set(db_years)), reverse=True)
-hearing_filter_options = [
-    "All Time",
-    "Within 1 week",
-    "Within 2 weeks",
-    "Within 3 weeks",
-    "Within 4 weeks"
-]
+hearing_filter_options = ["All Time", "Within 1 week", "Within 2 weeks", "Within 3 weeks", "Within 4 weeks"]
 
 st.sidebar.header("Supervisor Filters")
 selected_bench = st.sidebar.selectbox("Filter by Bench", all_filter_benches, key="filter_bench")
@@ -259,7 +363,7 @@ selected_year = st.sidebar.selectbox("Filter by Year of Filing", all_filter_year
 selected_category = st.sidebar.selectbox("Filter by Category of Prayer", ["All Categories"] + category_options, key="filter_cat")
 selected_hearing_filter = st.sidebar.selectbox("Filter by Next Hearing Date", hearing_filter_options, key="filter_hearing")
 
-# --- 6. DATA ENTRY FORM (Clerk Only - Closed by default) ---
+# --- 6. DATA ENTRY FORM (Clerk Only) ---
 if st.session_state.role == "Clerk / Data Entry":
     with st.expander("➕ Open Data Entry Form", expanded=False):
         with st.form(f"operator_entry_form_{st.session_state.form_reset_counter}"):
@@ -268,7 +372,6 @@ if st.session_state.role == "Clerk / Data Entry":
             
             bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
             bench_selection = st.selectbox("Name of Bench / Bench", bench_choices)
-            
             custom_bench = st.text_input("Please specify Court Name (if Others)")
 
             applicant_name = st.text_input("Applicant Name")
@@ -318,15 +421,15 @@ if st.session_state.role == "Clerk / Data Entry":
                 conn.commit()
                 conn.close()
                 
-                st.session_state.success_notification = f"✅ Success! Case {case_number}/{year_of_filing} has been successfully entered and saved to the database."
+                st.session_state.success_notification = f"✅ Success! Case {case_number}/{year_of_filing} has been successfully entered and saved."
                 st.session_state.form_reset_counter += 1
                 st.rerun()
             else:
                 st.error("Please fill in at least the Case Number and Applicant Name.")
 
-# --- 7. SUPERVISOR REPOSITORY, SEARCH & SORTING ---
+# --- 7. SUPERVISOR REPOSITORY & SEARCH ---
 st.subheader("Live Case Repository")
-st.markdown("💡 *Tip: Cases with upcoming hearings **within 1 week** are dynamically highlighted in light pista green.*")
+st.markdown("💡 *Tip: Cases with upcoming hearings **within 1 week** are highlighted in light green.*")
 
 conn = sqlite3.connect("mat_cases.db")
 query = """
@@ -355,15 +458,9 @@ df = pd.read_sql_query(query, conn, params=params)
 conn.close()
 
 if not df.empty:
-    # --- APPLY HEARING DATE FILTER FROM SIDEBAR ---
     if selected_hearing_filter != "All Time":
         today = datetime.date.today()
-        days_map = {
-            "Within 1 week": 7,
-            "Within 2 weeks": 14,
-            "Within 3 weeks": 21,
-            "Within 4 weeks": 28
-        }
+        days_map = {"Within 1 week": 7, "Within 2 weeks": 14, "Within 3 weeks": 21, "Within 4 weeks": 28}
         target_days = days_map.get(selected_hearing_filter, 7)
         target_date = today + datetime.timedelta(days=target_days)
             
@@ -392,7 +489,6 @@ if not df.empty:
             use_container_width=True
         )
 
-    # --- HIGHLIGHTING FUNCTION FOR HEARINGS WITHIN 1 WEEK ---
     def highlight_upcoming_hearing(row):
         try:
             h_date = pd.to_datetime(row['Next Hearing Date']).date()
