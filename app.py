@@ -225,7 +225,6 @@ if "logged_in" not in st.session_state:
     st.session_state.username = ""
     st.session_state.role = ""
 
-# Automatically restore session from query parameters if page is refreshed (`F5`)
 if not st.session_state.logged_in:
     if "user" in st.query_params and "role" in st.query_params:
         st.session_state.logged_in = True
@@ -266,7 +265,6 @@ if not st.session_state.logged_in:
             st.markdown("<p>Please sign in with your assigned credentials.</p>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # --- 30% CENTERED LOGIN FORM CONTAINER ---
     _, form_col, _ = st.columns([3.5, 3, 3.5])
     
     with form_col:
@@ -288,14 +286,13 @@ if not st.session_state.logged_in:
                 st.session_state.username = username_input
                 st.session_state.role = user_record[1]
                 st.session_state.show_login_popup = True
-                st.session_state.popup_start_time = time.time()  # Start 10s countdown timer
+                st.session_state.popup_start_time = time.time()
                 st.query_params["user"] = username_input
                 st.query_params["role"] = user_record[1]
                 st.rerun()
             else:
                 st.error("Invalid username or password. Please try again.")
 
-    # --- COPYRIGHT FOOTER FOR LOGIN PAGE ---
     st.markdown(
         """
         <div style="text-align: center; margin-top: 60px; color: #555; font-size: 13px;">
@@ -382,7 +379,6 @@ with st.sidebar:
     st.markdown(f"👤 **User:** {st.session_state.username}")
     st.markdown(f"🛡️ **Role:** {st.session_state.role}")
     
-    # Instant Logout Button in Sidebar
     if st.button("Log Out", key="sidebar_logout_btn"):
         st.session_state.logged_in = False
         st.session_state.username = ""
@@ -443,8 +439,9 @@ selected_year = st.sidebar.selectbox("Filter by Year of Filing", all_filter_year
 selected_category = st.sidebar.selectbox("Filter by Category of Prayer", ["All Categories"] + category_options, key="filter_cat")
 selected_hearing_filter = st.sidebar.selectbox("Filter by Next Hearing Date", hearing_filter_options, key="filter_hearing")
 
-# --- 6. DATA ENTRY FORM (Clerk Only) - NON-FORM CONTAINER FOR INSTANT REACTIVITY ---
+# --- 6. DATA ENTRY FORM & EDIT RECORD FORM (Clerk Only) ---
 if st.session_state.role == "Clerk / Data Entry":
+    # --- A. NEW DATA ENTRY FORM ---
     with st.expander("➕ Open Data Entry Form", expanded=False):
         rc = st.session_state.form_reset_counter
         
@@ -466,7 +463,6 @@ if st.session_state.role == "Clerk / Data Entry":
         main_application_details = st.text_area("Details of Main Application", key=f"de_main_app_{rc}")
         case_status_date = st.text_input("Case Status Date (e.g., 2026-06-15 or 'Pending')", key=f"de_status_{rc}")
         
-        # --- DYNAMIC CHECKBOX & CALENDAR PICKER (Reruns instantly when toggled) ---
         has_hearing = st.checkbox("Is next hearing date given?", value=True, key=f"de_has_hearing_{rc}")
         next_hearing_date_obj = st.date_input("Next Hearing Date", value=datetime.date.today(), disabled=not has_hearing, key=f"de_hearing_date_{rc}")
         
@@ -514,6 +510,88 @@ if st.session_state.role == "Clerk / Data Entry":
                 st.rerun()
             else:
                 st.error("Please fill in at least the Case Number and Applicant Name.")
+
+    # --- B. EDIT EXISTING CASE RECORD FORM (WITH REACTIVE HEARING CHECKBOX) ---
+    with st.expander("✏️ Edit Existing Case Record", expanded=False):
+        conn_edit = sqlite3.connect("mat_cases.db")
+        cursor_edit = conn_edit.cursor()
+        cursor_edit.execute("SELECT id, case_number, year_of_filing, applicant_name FROM cases")
+        cases_list = cursor_edit.fetchall()
+        conn_edit.close()
+        
+        if cases_list:
+            case_options_map = {f"ID: {row[0]} | {row[1]}/{row[2]} - {row[3]}": row[0] for row in cases_list}
+            selected_case_label = st.selectbox("Select Case to Edit", list(case_options_map.keys()), key="edit_case_select")
+            selected_case_id = case_options_map[selected_case_label]
+            
+            conn_full = sqlite3.connect("mat_cases.db")
+            cursor_full = conn_full.cursor()
+            cursor_full.execute("SELECT case_number, year_of_filing, bench, other_bench_details, applicant_name, subject_prayer, category_prayer, case_brief, affidavit_details, main_application_details, case_status_date, next_hearing_date FROM cases WHERE id = ?", (selected_case_id,))
+            c_data = cursor_full.fetchone()
+            conn_full.close()
+            
+            if c_data:
+                e_case_no = st.text_input("Case Number", value=c_data[0], key=f"edit_case_no_{selected_case_id}")
+                e_year = st.selectbox("Year of Filing", year_options, index=year_options.index(c_data[1]) if c_data[1] in year_options else 0, key=f"edit_year_{selected_case_id}")
+                
+                bench_choices = ["Please Select Court"] + standard_benches + ["Others"]
+                b_idx = bench_choices.index(c_data[2]) if c_data[2] in bench_choices else (bench_choices.index("Others") if c_data[2] else 0)
+                e_bench = st.selectbox("Name of Bench / Bench", bench_choices, index=b_idx, key=f"edit_bench_{selected_case_id}")
+                e_custom_bench = st.text_input("Please specify Court Name (if Others)", value=c_data[3] if c_data[3] else "", key=f"edit_custom_bench_{selected_case_id}")
+                
+                e_applicant = st.text_input("Applicant Name", value=c_data[4] if c_data[4] else "", key=f"edit_applicant_{selected_case_id}")
+                e_subject = st.text_input("Subject/Prayer", value=c_data[5] if c_data[5] else "", key=f"edit_subject_{selected_case_id}")
+                
+                cat_choices = ["Please select appropriate category"] + category_options
+                c_idx = cat_choices.index(c_data[6]) if c_data[6] in cat_choices else 0
+                e_cat = st.selectbox("Category of Prayer/Subject", cat_choices, index=c_idx, key=f"edit_cat_{selected_case_id}")
+                
+                e_brief = st.text_area("Case in Brief", value=c_data[7] if c_data[7] else "", key=f"edit_brief_{selected_case_id}")
+                e_affidavit = st.text_area("Affidavit Filing Details", value=c_data[8] if c_data[8] else "", key=f"edit_affidavit_{selected_case_id}")
+                e_main_app = st.text_area("Details of Main Application", value=c_data[9] if c_data[9] else "", key=f"edit_main_app_{selected_case_id}")
+                e_status = st.text_input("Case Status Date", value=c_data[10] if c_data[10] else "", key=f"edit_status_{selected_case_id}")
+                
+                curr_hearing = c_data[11]
+                has_h_val = True
+                h_date_val = datetime.date.today()
+                if not curr_hearing or str(curr_hearing).strip() in ["Date Not available", "None", ""]:
+                    has_h_val = False
+                else:
+                    try:
+                        h_date_val = datetime.datetime.strptime(curr_hearing, "%Y-%m-%d").date()
+                    except:
+                        try:
+                            h_date_val = datetime.datetime.strptime(curr_hearing, "%d-%m-%Y").date()
+                        except:
+                            pass
+                            
+                e_has_hearing = st.checkbox("Is next hearing date given?", value=has_h_val, key=f"edit_has_hearing_{selected_case_id}")
+                e_hearing_date = st.date_input("Next Hearing Date", value=h_date_val, disabled=not e_has_hearing, key=f"edit_hearing_date_{selected_case_id}")
+                
+                update_submitted = st.button("Update Case Record", key=f"edit_submit_{selected_case_id}", type="primary")
+                
+                if update_submitted:
+                    final_h_str = e_hearing_date.strftime("%Y-%m-%d") if e_has_hearing else "Date Not available"
+                    final_b_val = "Others" if e_bench == "Others" else e_bench
+                    final_ob_details = e_custom_bench.strip() if e_bench == "Others" else None
+                    
+                    conn_up = sqlite3.connect("mat_cases.db")
+                    cur_up = conn_up.cursor()
+                    cur_up.execute("""
+                        UPDATE cases 
+                        SET case_number = ?, year_of_filing = ?, bench = ?, other_bench_details = ?, 
+                            applicant_name = ?, subject_prayer = ?, category_prayer = ?, 
+                            case_brief = ?, affidavit_details = ?, main_application_details = ?, 
+                            case_status_date = ?, next_hearing_date = ?
+                        WHERE id = ?
+                    """, (e_case_no, e_year, final_b_val, final_ob_details, e_applicant, e_subject, e_cat, e_brief, e_affidavit, e_main_app, e_status, final_h_str, selected_case_id))
+                    conn_up.commit()
+                    conn_up.close()
+                    
+                    st.session_state.success_notification = f"✅ Success! Case {e_case_no}/{e_year} has been successfully updated."
+                    st.rerun()
+        else:
+            st.info("No cases available in the database to edit.")
 
 # --- 7. SUPERVISOR REPOSITORY & SEARCH ---
 st.subheader("Live Case Repository")
