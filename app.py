@@ -15,19 +15,17 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Force bold text inside primary buttons and standard buttons */
     div.stButton > button[kind="primary"], div.stButton > button {
         font-weight: 800 !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
     }
     div.stButton > button[kind="primary"] p, div.stButton > button p,
     div.stButton > button[kind="primary"] span, div.stButton > button span {
         font-weight: 800 !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
         color: #1A252C !important;
     }
 
-    /* CUSTOM BUTTON COLORS */
     div.stFormSubmitButton > button {
         background-color: #9bff94 !important;
         border-color: #72e06b !important;
@@ -58,7 +56,6 @@ st.markdown(
         color: #1A252C !important;
     }
 
-    /* Global Warm White Background & Professional Font */
     .stApp {
         background-color: #FDFBF7;
         color: #2C3E50;
@@ -125,22 +122,6 @@ st.markdown(
         color: #1B2631 !important;
         font-size: 20px !important;
     }
-
-    div[data-testid="stMarkdownContainer"] > p:has(strong) {
-        font-size: 17px !important;
-        font-weight: 700 !important;
-        color: #1A252C !important;
-    }
-
-    [data-testid="stImage"] img {
-        pointer-events: none !important;
-    }
-    [data-testid="stImageToolbar"], 
-    button[title*="View fullscreen"], 
-    button[title*="Fullscreen"] {
-        display: none !important;
-        visibility: hidden !important;
-    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -195,10 +176,11 @@ TRANSLATIONS = {
         "update_btn": "Update Case Record",
         "select_edit_case": "Select Case to Edit",
         "live_repo": "Live Case Repository",
-        "repo_tip": "💡 *Tip: Cases with upcoming hearings **within 1 week** are highlighted in light green.*",
+        "repo_tip": "💡 *Tip: Click the **View Details** button on any row to open full case records in a modal window. Cases with upcoming hearings **within 1 week** are highlighted in light green.*",
         "search_box": "🔍 Search Cases",
         "search_placeholder": "Type to search cases, applicants, subjects...",
         "export_csv": "📥 Export to CSV",
+        "view_details": "View Details",
         "no_cases": "No cases found matching the selected filters.",
         "no_edit_cases": "No cases available in the database to edit.",
         "popup_title": "🔔 URGENT: Upcoming Hearings in the Next 7 Days",
@@ -254,10 +236,11 @@ TRANSLATIONS = {
         "update_btn": "केस रेकॉर्ड अपडेट करा",
         "select_edit_case": "संपादित करण्यासाठी केस निवडा",
         "live_repo": "लाइव्ह केस रिपॉजिटरी",
-        "repo_tip": "💡 *टीप: ज्या केसेसची सुनावणी **१ आठवड्यात** आहे त्या हिरव्या रंगात दर्शविल्या आहेत.*",
+        "repo_tip": "💡 *टीप: संपूर्ण तपशील पॉपअप विंडोमध्ये पाहण्यासाठी प्रत्येक ओळीवरील **तपशील पहा** बटणावर क्लिक करा.*",
         "search_box": "🔍 केस शोधा",
         "search_placeholder": "केस, अर्जदार, विषय शोधण्यासाठी टाइप करा...",
         "export_csv": "📥 CSV मध्ये निर्यात करा",
+        "view_details": "तपशील पहा",
         "no_cases": "निवडलेल्या फिल्टरशी जुळणाऱ्या कोणत्याही केसेस सापडल्या नाहीत.",
         "no_edit_cases": "संपादित करण्यासाठी डेटाबेसमध्ये कोणतीही केस उपलब्ध नाही.",
         "popup_title": "🔔 अत्यंत महत्त्वाचे: पुढील ७ दिवसांत सुनावणी असलेल्या केसेस",
@@ -323,16 +306,21 @@ def init_db():
     if cursor.fetchone()[0] == 0:
         default_users = [
             ("clerk1", "clerk123", "Clerk / Data Entry"),
-            ("officer1", "officer123", "Officer")
+            ("officer1", "officer123", "Officer"),
+            ("admin1", "admin123", "Admin")
         ]
         cursor.executemany("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", default_users)
+    else:
+        cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'admin1'")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("INSERT INTO users (username, password, role) VALUES ('admin1', 'admin123', 'Admin')")
 
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- 2. AUTHENTICATION & SESSION STATE WITH REFRESH PERSISTENCE ---
+# --- 2. AUTHENTICATION & SESSION STATE ---
 if "lang" not in st.session_state:
     st.session_state.lang = "English"
 
@@ -361,7 +349,6 @@ if not st.session_state.logged_in:
     banner_container = st.container()
     with banner_container:
         st.markdown('<div class="orange-banner">', unsafe_allow_html=True)
-        # Placed logo, title, and language selector inside the orange banner columns
         col_logo, col_text, col_lang = st.columns([1, 6, 2])
         with col_logo:
             if os.path.exists("logo.jpg"):
@@ -495,7 +482,6 @@ if st.session_state.logged_in and st.session_state.show_login_popup:
 
 # --- 5. MAIN PORTAL HEADER & SIDEBAR ---
 with st.sidebar:
-    # Language Selector in Sidebar after logging in
     st.session_state.lang = st.selectbox("🌐 Language / भाषा", ["English", "मराठी"], index=0 if st.session_state.lang == "English" else 1, key="sidebar_lang_sel")
     st.markdown("---")
     
@@ -511,6 +497,17 @@ with st.sidebar:
         if "popup_start_time" in st.session_state:
             del st.session_state.popup_start_time
         st.query_params.clear()
+        
+        st.markdown(
+            """
+            <script>
+                setTimeout(function() {
+                    window.location.reload(true);
+                }, 100);
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
         st.rerun()
         
     st.markdown("---")
@@ -563,9 +560,8 @@ selected_year = st.sidebar.selectbox(t("filter_year"), all_filter_years, key="fi
 selected_category = st.sidebar.selectbox(t("filter_cat"), [t("all_categories")] + category_options, key="filter_cat")
 selected_hearing_filter = st.sidebar.selectbox(t("filter_hearing"), hearing_filter_options, key="filter_hearing")
 
-# --- 6. DATA ENTRY FORM & EDIT RECORD FORM (Clerk Only) ---
-if st.session_state.role == "Clerk / Data Entry":
-    # --- A. NEW DATA ENTRY FORM ---
+# --- 6. DATA ENTRY FORM & EDIT RECORD FORM (Clerk & Admin) ---
+if st.session_state.role in ["Clerk / Data Entry", "Admin"]:
     with st.expander(t("open_entry"), expanded=False):
         rc = st.session_state.form_reset_counter
         
@@ -717,7 +713,7 @@ if st.session_state.role == "Clerk / Data Entry":
         else:
             st.info(t("no_edit_cases"))
 
-# --- 7. SUPERVISOR REPOSITORY & SEARCH ---
+# --- 7. SUPERVISOR REPOSITORY & CUSTOM ROW GRID WITH 'VIEW DETAILS' BUTTON ---
 st.subheader(t("live_repo"))
 st.markdown(t("repo_tip"))
 
@@ -778,19 +774,19 @@ if not df.empty:
 
         df = df[df["Next Hearing Date"].apply(is_within_range)]
 
-    display_df = df.drop(columns=["Other Court Details", "PDF Path"], errors="ignore")
-    
+    # Search bar & Export
     col_t1, col_t2 = st.columns([3, 1])
     with col_t1:
         search_query = st.text_input(t("search_box"), placeholder=t("search_placeholder"), key="search_box")
         
     if search_query:
-        mask = display_df.astype(str).apply(lambda row: row.str.contains(search_query, case=False, na=False).any(), axis=1)
-        display_df = display_df[mask]
+        mask = df.astype(str).apply(lambda row: row.str.contains(search_query, case=False, na=False).any(), axis=1)
+        df = df[mask]
         
     with col_t2:
         st.write("")
-        csv_data = display_df.to_csv(index=False).encode('utf-8')
+        export_df = df.drop(columns=["Other Court Details", "PDF Path"], errors="ignore")
+        csv_data = export_df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=t("export_csv"),
             data=csv_data,
@@ -799,19 +795,110 @@ if not df.empty:
             use_container_width=True
         )
 
-    def highlight_upcoming_hearing(row):
+    # --- NATIVE DIALOG MODAL POPUP WINDOW ---
+    @st.dialog("📄 Case Full Details View", width="large")
+    def show_case_modal(case_id):
+        conn_pop = sqlite3.connect("mat_cases.db")
+        cur_pop = conn_pop.cursor()
+        cur_pop.execute("""
+            SELECT case_number, year_of_filing, bench, other_bench_details, applicant_name, 
+                   subject_prayer, category_prayer, case_brief, affidavit_details, 
+                   main_application_details, case_status_date, next_hearing_date, pdf_file_path 
+            FROM cases WHERE id = ?
+        """, (case_id,))
+        case_row = cur_pop.fetchone()
+        conn_pop.close()
+
+        if case_row:
+            st.markdown(f"### Case Number: **{case_row[0]} / {case_row[1]}**")
+            st.markdown("---")
+            
+            p_col1, p_col2 = st.columns(2)
+            with p_col1:
+                bench_display = case_row[3] if case_row[2] == "Others" and case_row[3] else case_row[2]
+                st.markdown(f"**🏛️ Bench / Court:** {bench_display}")
+                st.markdown(f"**👤 Applicant Name:** {case_row[4]}")
+                st.markdown(f"**📌 Subject / Prayer:** {case_row[5] if case_row[5] else 'N/A'}")
+                st.markdown(f"**🏷️ Category:** {case_row[6] if case_row[6] else 'N/A'}")
+                st.markdown(f"**📅 Status Date:** {case_row[10] if case_row[10] else 'N/A'}")
+
+            with p_col2:
+                st.markdown(f"**⏰ Next Hearing Date:** {case_row[11] if case_row[11] else 'Date Not available'}")
+                st.markdown(f"**📝 Case Brief:** {case_row[7] if case_row[7] else 'N/A'}")
+                st.markdown(f"**⚖️ Affidavit Details:** {case_row[8] if case_row[8] else 'N/A'}")
+                st.markdown(f"**📂 Main App Details:** {case_row[9] if case_row[9] else 'N/A'}")
+
+            if case_row[12] and os.path.exists(case_row[12]):
+                st.markdown("---")
+                with open(case_row[12], "rb") as pdf_f:
+                    st.download_button(
+                        label="📥 Download Attached Case Document (PDF)",
+                        data=pdf_f.read(),
+                        file_name=os.path.basename(case_row[12]),
+                        mime="application/pdf",
+                        key=f"download_pdf_{case_id}"
+                    )
+            else:
+                st.markdown("---")
+                st.info("ℹ️ No PDF document attached to this case record.")
+
+            st.markdown("---")
+            if st.button("❌ Close Window", use_container_width=True, type="primary"):
+                st.rerun()
+
+    # --- CUSTOM OUTLINED TABLE GRID WITH PER-ROW 'VIEW DETAILS' BUTTON ---
+    st.markdown("""
+        <style>
+        .table-header {
+            background-color: #2C3E50;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 6px 6px 0 0;
+        }
+        .table-row {
+            padding: 10px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Header Row
+    h_col1, h_col2, h_col3, h_col4, h_col5, h_col6, h_col7 = st.columns([0.6, 1.8, 1.0, 2.5, 3.2, 1.8, 1.5])
+    h_col1.markdown("**Sr.**")
+    h_col2.markdown("**Case No.**")
+    h_col3.markdown("**Year**")
+    h_col4.markdown("**Applicant**")
+    h_col5.markdown("**Category**")
+    h_col6.markdown("**Next Hearing**")
+    h_col7.markdown("**Action**")
+    st.markdown("---")
+
+    # Data Rows
+    for idx, row in df.iterrows():
+        r_col1, r_col2, r_col3, r_col4, r_col5, r_col6, r_col7 = st.columns([0.6, 1.8, 1.0, 2.5, 3.2, 1.8, 1.5])
+        
+        # Check hearing date for 1-week highlight
+        bg_style = ""
         try:
-            date_str = row['Next Hearing Date']
-            if date_str != "Date Not available":
-                h_date = datetime.datetime.strptime(date_str, "%d-%m-%Y").date()
-                today = datetime.date.today()
-                if today <= h_date <= today + datetime.timedelta(days=7):
-                    return ['background-color: #D8F3DC'] * len(row)
+            h_dt = datetime.datetime.strptime(row["Next Hearing Date"], "%d-%m-%Y").date()
+            if datetime.date.today() <= h_dt <= datetime.date.today() + datetime.timedelta(days=7):
+                bg_style = "background-color: #D8F3DC; padding: 6px; border-radius: 4px;"
         except:
             pass
-        return [''] * len(row)
 
-    styled_df = display_df.style.apply(highlight_upcoming_hearing, axis=1)
-    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+        r_col1.markdown(f"<div style='{bg_style}'>{idx + 1}</div>", unsafe_allow_html=True)
+        r_col2.markdown(f"<div style='{bg_style}'><b>{row['Case Number']}</b></div>", unsafe_allow_html=True)
+        r_col3.markdown(f"<div style='{bg_style}'>{row['Filing Year']}</div>", unsafe_allow_html=True)
+        r_col4.markdown(f"<div style='{bg_style}'>{row['Applicant']}</div>", unsafe_allow_html=True)
+        r_col5.markdown(f"<div style='{bg_style}'>{row['Category']}</div>", unsafe_allow_html=True)
+        r_col6.markdown(f"<div style='{bg_style}'>{row['Next Hearing Date']}</div>", unsafe_allow_html=True)
+        
+        case_id = int(row["ID"])
+        with r_col7:
+            if st.button(t("view_details"), key=f"btn_view_{case_id}", type="secondary"):
+                show_case_modal(case_id)
 else:
     st.info(t("no_cases"))
