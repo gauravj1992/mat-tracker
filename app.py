@@ -554,11 +554,22 @@ all_filter_benches = [t("all_benches")] + list(set(standard_benches + db_benches
 all_filter_years = [t("all_years")] + sorted(list(set(db_years)), reverse=True)
 hearing_filter_options = [t("all_time"), "Within 1 week", "Within 2 weeks", "Within 3 weeks", "Within 4 weeks"]
 
+# New Status filter options (Bilingual support added)
+status_filter_options = {
+    "English": ["All Cases", "Pending", "Disposed"],
+    "मराठी": ["सर्व केसेस", "प्रलंबित (Pending)", "निकाल लागलेल्या (Disposed)"]
+}
+current_lang_status_opts = status_filter_options.get(st.session_state.get("lang", "English"), status_filter_options["English"])
+
 st.sidebar.header(t("supervisor_filters"))
 selected_bench = st.sidebar.selectbox(t("filter_bench"), all_filter_benches, key="filter_bench")
 selected_year = st.sidebar.selectbox(t("filter_year"), all_filter_years, key="filter_year")
 selected_category = st.sidebar.selectbox(t("filter_cat"), [t("all_categories")] + category_options, key="filter_cat")
 selected_hearing_filter = st.sidebar.selectbox(t("filter_hearing"), hearing_filter_options, key="filter_hearing")
+
+# New Status Filter Dropdown
+status_label = "Filter by Status" if st.session_state.get("lang", "English") == "English" else "स्थितीनुसार फिल्टर करा"
+selected_status_filter = st.sidebar.selectbox(status_label, current_lang_status_opts, key="filter_status")
 
 # --- 6. DATA ENTRY FORM & EDIT RECORD FORM (Clerk & Admin) ---
 if st.session_state.role in ["Clerk / Data Entry", "Admin"]:
@@ -713,7 +724,7 @@ if st.session_state.role in ["Clerk / Data Entry", "Admin"]:
         else:
             st.info(t("no_edit_cases"))
 
-# --- 7. SUPERVISOR REPOSITORY & CUSTOM ROW GRID WITH 'VIEW DETAILS' BUTTON ---
+# --- 7. SUPERVISOR REPOSITORY, FILTERS & CUSTOM ROW GRID ---
 st.subheader(t("live_repo"))
 st.markdown(t("repo_tip"))
 
@@ -739,6 +750,19 @@ if selected_year != t("all_years"):
 if selected_category != t("all_categories"):
     query += " AND category_prayer = ?"
     params.append(selected_category)
+
+# Apply Status Filter logic (Pending, Disposed, All Cases)
+lang_key = st.session_state.get("lang", "English")
+if lang_key == "English":
+    if selected_status_filter == "Pending":
+        query += " AND (LOWER(case_status_date) LIKE '%pending%' OR case_status_date IS NULL OR case_status_date = '')"
+    elif selected_status_filter == "Disposed":
+        query += " AND LOWER(case_status_date) LIKE '%disposed%'"
+else: # Marathi
+    if "प्रलंबित" in selected_status_filter:
+        query += " AND (LOWER(case_status_date) LIKE '%pending%' OR case_status_date IS NULL OR case_status_date = '')"
+    elif "निकाल" in selected_status_filter:
+        query += " AND LOWER(case_status_date) LIKE '%disposed%'"
 
 df = pd.read_sql_query(query, conn, params=params)
 conn.close()
@@ -847,24 +871,6 @@ if not df.empty:
                 st.rerun()
 
     # --- CUSTOM OUTLINED TABLE GRID WITH PER-ROW 'VIEW DETAILS' BUTTON ---
-    st.markdown("""
-        <style>
-        .table-header {
-            background-color: #2C3E50;
-            color: white;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 6px 6px 0 0;
-        }
-        .table-row {
-            padding: 10px;
-            border-bottom: 1px solid #E2E8F0;
-            display: flex;
-            align-items: center;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     # Header Row
     h_col1, h_col2, h_col3, h_col4, h_col5, h_col6, h_col7 = st.columns([0.6, 1.8, 1.0, 2.5, 3.2, 1.8, 1.5])
     h_col1.markdown("**Sr.**")
